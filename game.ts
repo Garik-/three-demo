@@ -18,6 +18,10 @@ import { Sky } from "three/examples/jsm/objects/Sky"
 const scene = new Scene();
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
 
+type Func = () => void
+
+const schedule: Func[] = []
+
 let renderer: WebGLRenderer;
 
 const sceneConfiguration = {
@@ -27,6 +31,11 @@ const sceneConfiguration = {
     cameraStartAnimationPlaying: false,
     ready: false,
 }
+
+
+
+const easeOutQuad = (x: number) => 1 - (1 - x) * (1 - x)
+
 
 // Stores the current position of the camera, while the opening camera animation is playing
 let cameraAngleStartAnimation = 0.00;
@@ -93,7 +102,7 @@ function setupSky(sky: Sky, sun: Vector3) {
 }
 
 function setupWater(water: Water, sun: Vector3) {
-    (water.material as ShaderMaterial).uniforms['speed'].value = 0.0;
+    (water.material as ShaderMaterial).uniforms['speed'].value = 0;
     (water.material as ShaderMaterial).uniforms['sunDirection'].value.copy(sun).normalize();
 
 }
@@ -166,6 +175,7 @@ const animate = () => {
 
 function updateWaterMaterial() {
     (water.material as ShaderMaterial).uniforms['time'].value += 1 / 60.0;
+    (water.material as ShaderMaterial).uniforms['speed'].value += 0.001
     if (sceneConfiguration.objectMoving) {
         (water.material as ShaderMaterial).uniforms['speed'].value += sceneConfiguration.speed / 50;
     }
@@ -175,3 +185,64 @@ function updateWaterMaterial() {
 window.addEventListener('resize', onWindowResize, false);
 init()
 animate();
+
+
+const dispatchKeys: { [key: string]: string } = { 87: 'W', 83: 'S' }
+const instance = new EventTarget();
+
+function acceleration(speed: number, delta: number) {
+    let x = easeOutQuad(speed + delta)
+    if (x > 1.0) {
+        x = 1.0
+    }
+
+
+    console.log(x)
+
+    return x
+}
+
+
+
+function pressAccelerate() {
+    if (!sceneConfiguration.objectMoving) {
+        sceneConfiguration.objectMoving = true
+    }
+
+    sceneConfiguration.speed = acceleration(sceneConfiguration.speed, 0.002)
+}
+
+function pressBrake() {
+    if (!sceneConfiguration.objectMoving) {
+        sceneConfiguration.objectMoving = true
+    }
+
+    sceneConfiguration.speed = 0.0
+}
+
+
+instance.addEventListener('W_down', pressAccelerate)
+instance.addEventListener('S_down', pressBrake)
+
+
+
+
+document.addEventListener('keydown', onKeyDown, false)
+document.addEventListener('keyup', onKeyUp, false)
+
+
+function onKeyDown(event: KeyboardEvent) {
+
+    let keyCode = event.which;
+    console.log(keyCode)
+    if (keyCode in dispatchKeys) {
+        instance.dispatchEvent(new Event(dispatchKeys[keyCode] + '_down'))
+    }
+}
+
+function onKeyUp(event: KeyboardEvent) {
+    let keyCode = event.which;
+    if (keyCode in dispatchKeys) {
+        instance.dispatchEvent(new Event(dispatchKeys[keyCode] + '_up'))
+    }
+}
