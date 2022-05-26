@@ -5,7 +5,7 @@ import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 export let bunnyModel: Object3D;
 
 
-const bunnyGLTF = 'static/models/bunny_plushie/scene.gltf';
+const bunnyGLTF = './static/models/bunny_plushie/scene.gltf';
 const gltfLoader = new GLTFLoader();
 
 export const objectsInit = async () => {
