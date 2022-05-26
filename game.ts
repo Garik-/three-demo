@@ -41,7 +41,7 @@ function createWater() {
         {
             textureWidth: 512,
             textureHeight: 512,
-            waterNormals: new TextureLoader().load('static/normals/waternormals.jpeg', function (texture) {
+            waterNormals: new TextureLoader().load('./static/normals/waternormals.jpeg', function (texture) {
                 texture.wrapS = texture.wrapT = MirroredRepeatWrapping;
             }),
             sunDirection: new Vector3(),

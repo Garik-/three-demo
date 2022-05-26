@@ -5,6 +5,8 @@ const ThreeMinifierPlugin = require("@yushijinhun/three-minifier-webpack");
 const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 const threeMinifier = new ThreeMinifierPlugin();
 
+const ASSET_PATH = './'
+
 module.exports = merge(common, {
     plugins: [
         threeMinifier, // Minifies our three.js code
@@ -17,10 +19,11 @@ module.exports = merge(common, {
     },
     mode: 'production', // Minify our output
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'docs'),
         filename: '[name].[fullhash:8].js', // Our output will have a unique hash, which will force our clients to download updates if they become available later
         sourceMapFilename: '[name].[fullhash:8].map',
-        chunkFilename: '[id].[fullhash:8].js'
+        chunkFilename: '[id].[fullhash:8].js',
+        publicPath: ASSET_PATH,
     },
     optimization: {
         splitChunks: {
