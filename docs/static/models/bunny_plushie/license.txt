@@ -1,0 +1,11 @@
+Model Information:
+* title:	Bunny Plushie
+* source:	https://sketchfab.com/3d-models/bunny-plushie-67d4fc086fdc412aa934feec5acc0c1e
+* author:	Friendly Ninja 27 (https://sketchfab.com/Starovoytovm.20)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Bunny Plushie" (https://sketchfab.com/3d-models/bunny-plushie-67d4fc086fdc412aa934feec5acc0c1e) by Friendly Ninja 27 (https://sketchfab.com/Starovoytovm.20) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

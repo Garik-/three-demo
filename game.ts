@@ -9,11 +9,21 @@ import {
 
 
     AxesHelper,
+    AnimationMixer,
+    VectorKeyframeTrack,
+    InterpolateSmooth,
+    Quaternion,
+    QuaternionKeyframeTrack,
+    AnimationClip,
+    LoopOnce,
+    Clock,
 
 
 } from 'three';
 import { Water } from './objects/water'
 import { Sky } from "three/examples/jsm/objects/Sky"
+
+import { objectsInit, bunnyModel } from './objects';
 
 const scene = new Scene();
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
@@ -108,6 +118,47 @@ function setupWater(water: Water, sun: Vector3) {
 
 }
 
+function testAnimate() {
+     // Create an animation mixer on the rocket model
+     camera.userData.mixer = new AnimationMixer(camera);
+     // Create an animation from the cameras' current position to behind the rocket
+     let track = new VectorKeyframeTrack('.position', [0, 2], [
+         camera.position.x, // x 1
+         camera.position.y, // y 1
+         camera.position.z, // z 1
+         0, // x 2
+         30, // y 2
+         100, // z 2
+     ], InterpolateSmooth);
+
+     // Create a Quaternion rotation for the "forwards" position on the camera
+     let identityRotation = new Quaternion().setFromAxisAngle(new Vector3(-1, 0, 0), .3);
+
+     // Create an animation clip that begins with the cameras' current rotation, and ends on the camera being
+     // rotated towards the game space
+     let rotationClip = new QuaternionKeyframeTrack('.quaternion', [0, 2], [
+         camera.quaternion.x, camera.quaternion.y, camera.quaternion.z, camera.quaternion.w,
+         identityRotation.x, identityRotation.y, identityRotation.z, identityRotation.w
+     ]);
+
+     // Associate both KeyFrameTracks to an AnimationClip, so they both play at the same time
+     const animationClip = new AnimationClip('animateIn', 4, [track, rotationClip]);
+     const animationAction = camera.userData.mixer.clipAction(animationClip);
+     animationAction.setLoop(LoopOnce, 1);
+     animationAction.clampWhenFinished = true;
+
+     camera.userData.clock = new Clock();
+     camera.userData.mixer.addEventListener('finished', function () {
+         // Make sure the camera is facing in the right direction
+         camera.lookAt(new Vector3(0, -500, -1400));
+  
+     });
+
+     // Play the animation
+     camera.userData.mixer.clipAction(animationClip).play();
+
+}
+
 function init() {
     renderer = new WebGLRenderer();
     renderer.toneMapping = ACESFilmicToneMapping;
@@ -138,12 +189,27 @@ function init() {
     setupWater(water, sun)
 
 
-    sceneConfiguration.ready = true;
+    bunnyModel.scale.set(0.02,0.02 ,0.02)
+    bunnyModel.rotation.set(0,1,0)
+    bunnyModel.position.y = 3
 
-    camera.position.set(0, 10, 30);
+    scene.add(bunnyModel)
+  
+
+    camera.position.set(0, 10, 40);
+
+  
+
+
+  camera.lookAt(new Vector3(0, -500, -1400));
 
 
     scene.add(new AxesHelper(20));
+
+    sceneConfiguration.ready = true;
+
+
+   //testAnimate()
 }
 
 const animate = () => {
@@ -151,12 +217,12 @@ const animate = () => {
 
     if (sceneConfiguration.ready) {
         // if (!sceneConfiguration.cameraStartAnimationPlaying) {
-        //     camera.position.x = 20 * Math.cos(cameraAngleStartAnimation);
-        //     camera.position.z = 20 * Math.sin(cameraAngleStartAnimation);
-        //     camera.position.y = 30;
+           //  camera.position.x = 20 * Math.cos(cameraAngleStartAnimation);
+           //  camera.position.z = 20 * Math.sin(cameraAngleStartAnimation);
+           //  camera.position.y = 30;
         //     // camera.position.y += 40;
         //     // camera.lookAt(rocketModel.position);
-        //     cameraAngleStartAnimation += 0.005;
+           //  cameraAngleStartAnimation += 0.005;
         // }
 
 
@@ -184,8 +250,11 @@ function updateWaterMaterial() {
 
 
 window.addEventListener('resize', onWindowResize, false);
-init()
-animate();
+
+objectsInit().then( () => {
+    init()
+    animate();
+})
 
 
 const dispatchKeys: { [key: string]: string } = { 87: 'W', 83: 'S' }
