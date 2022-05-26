@@ -35,6 +35,7 @@ const sceneConfiguration = {
 
 
 const easeOutQuad = (x: number) => 1 - (1 - x) * (1 - x)
+const easeOutCubic = (x: number) => 1 - Math.pow( 1 - x, 3 );
 
 
 // Stores the current position of the camera, while the opening camera animation is playing
@@ -196,15 +197,19 @@ function acceleration(speed: number, delta: number) {
         x = 1.0
     }
 
-
-    console.log(x)
-
     return x
 }
 
 
+let b = 0;
+function brake( delta: number) {
+    b = b + delta
+    return easeOutCubic(b)
+}
 
 function pressAccelerate() {
+    b = 0
+
     if (!sceneConfiguration.objectMoving) {
         sceneConfiguration.objectMoving = true
     }
@@ -217,7 +222,13 @@ function pressBrake() {
         sceneConfiguration.objectMoving = true
     }
 
-    sceneConfiguration.speed = 0.0
+    sceneConfiguration.speed -= brake(0.1)
+
+   
+    if (sceneConfiguration.speed < 0) {
+        sceneConfiguration.speed = 0
+    }
+
 }
 
 
@@ -232,9 +243,7 @@ document.addEventListener('keyup', onKeyUp, false)
 
 
 function onKeyDown(event: KeyboardEvent) {
-
     let keyCode = event.which;
-    console.log(keyCode)
     if (keyCode in dispatchKeys) {
         instance.dispatchEvent(new Event(dispatchKeys[keyCode] + '_down'))
     }
